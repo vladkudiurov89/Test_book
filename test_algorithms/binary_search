@@ -1,0 +1,36 @@
+import numpy as np
+
+
+def get_sort(date_book):
+    sort_date = sorted(date_book)
+    return sort_date
+
+
+def get_search(date_b, element):
+    low_el = 0
+    high_el = len(date_b) - 1
+    while low_el <= high_el:
+        middle = (low_el + high_el) // 2
+        find_el = date_b[middle]
+        if find_el == element:
+            return middle
+        if find_el >= element:
+            high_el = middle - 1
+        else:
+            low_el = middle + 1
+    not_element = 'THIS ELEMENT IS NOT IN DATE'
+    return not_element
+
+
+# 'None' means nil in Python. We use to indicate that the item wasn't found.
+
+if __name__ == '__main__':
+    date_new = list(np.random.randint(1, 55, 40, dtype=int))
+    print(date_new)
+    aa = get_sort(date_new)
+    print(aa)
+    search_element = int(input("ENTER ELEMENT IN LIST: \n"))
+    find_element = get_search(date_new, search_element)
+    print(f'BEFORE SORT: \n{find_element}')
+    find_element_2 = get_search(aa, search_element)
+    print(f'AFTER SORT: \n{find_element_2}')
