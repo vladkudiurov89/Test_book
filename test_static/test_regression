@@ -1,0 +1,22 @@
+import pandas as pd
+import numpy as np
+from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import Ridge
+
+# Linear Regression
+y = np.array([0, 1, 0, 3])
+x = np.array([0, 1, 2, 3])
+model = LinearRegression(normalize=True)
+model.fit(x.reshape(len(y), 1), y)
+print("Intercept model: ", model.intercept_.round(2))
+print("Coefficient model: ", model.coef_.round(2))
+
+# Ridge Regression
+df = pd.DataFrame({'X1': [0, 1, 2, 3], 'X2': [3, 2, 1, 0], 'Y': [0, 1, 0, 3]}, index=['A', 'B', 'C', 'D'])
+
+X = np.array([df['X2'], df['X1']])
+r_model = Ridge(alpha=0.5)
+r_model.fit(X.reshape(len(df['Y']), 2), df['Y'])
+print(f'\nTable Date\n{df}')
+print("Intercept model: ", r_model.intercept_.round(2))
+print("Coefficient model: ", r_model.coef_.round(2))
