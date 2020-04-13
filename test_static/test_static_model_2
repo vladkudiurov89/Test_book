@@ -1,0 +1,55 @@
+import pandas as pd
+from statsmodels.graphics.factorplots import interaction_plot
+from scipy import stats
+import matplotlib.pyplot as plt
+
+data = pd.read_csv('birds.csv', sep=',')
+# Картинка
+fig = interaction_plot(data.sex, data.hormone, data.var4, colors=['green', 'red'], markers=['D', '^'], ms=10)
+
+# Степени свободы
+N = len(data.var4)
+m1 = len(data.hormone.unique())
+m2 = len(data.sex.unique())
+df_a = m1 - 1
+df_b = m2 - 1
+df_axb = df_a * df_b
+df_w = N - m1 * m2
+
+# Общее среднее
+grand_mean = data['var4'].mean()
+
+# Суммы квадратов
+ssq_a = sum([(data[data.hormone == i].var4.mean() - grand_mean) ** 2 for i in data.hormone])
+ssq_b = sum([(data[data.sex == i].var4.mean() - grand_mean) ** 2 for i in data.sex])
+ssq_t = sum((data.var4 - grand_mean) ** 2)
+spl_age = [data[data.hormone == i] for i in data.hormone.unique()]
+age_means = [[x_age[x_age.sex == d].var4.mean() for d in x_age.sex] for x_age in spl_age]
+ssq_w = sum([sum((spl_age[i].var4 - age_means[i]) ** 2) for i in range(len(data.hormone.unique()))])
+ssq_axb = ssq_t - ssq_a - ssq_b - ssq_w
+
+# Средние квадраты
+ms_a = ssq_a / df_a
+ms_b = ssq_b / df_b
+ms_axb = ssq_axb / df_axb
+ms_w = ssq_w / df_w
+
+# F-значения
+f_a = ms_a / ms_w
+f_b = ms_b / ms_w
+f_axb = ms_axb / ms_w
+
+# P-значения
+p_a = stats.f.sf(f_a, df_a, df_w)
+p_b = stats.f.sf(f_b, df_b, df_w)
+p_axb = stats.f.sf(f_axb, df_axb, df_w)
+
+# результаты
+results = {'sum_sq': [ssq_a, ssq_b, ssq_axb, ssq_w],
+           'df': [df_a, df_b, df_axb, df_w], 'F': [f_a, f_b, f_axb, 'NaN'],
+           'PR(>F)': [p_a, p_b, p_axb, 'NaN']}
+columns = ['sum_sq', 'df', 'F', 'PR(>F)']
+aov_table1 = pd.DataFrame(results, columns=columns, index=['hormone', 'sex', 'hormone : sex', 'Residual'])
+
+print(aov_table1)
+plt.show()
